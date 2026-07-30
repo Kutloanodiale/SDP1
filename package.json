@@ -1,0 +1,17 @@
+{
+  "name": "local-todo-ledger",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A local-first todo app. Runs on your machine, stores data in a local SQLite file, no accounts, no internet required.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "next": "14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
