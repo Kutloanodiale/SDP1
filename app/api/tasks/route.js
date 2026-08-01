@@ -1,19 +1,33 @@
 import { NextResponse } from "next/server";
-
-// GET  /api/tasks       -> list tasks (support ?sort= and ?showArchived=)
-// POST /api/tasks       -> create a task
+import { createTask, listTasks, VALID_SORTS } from "@/lib/tasks";
 
 export async function GET(request) {
-  // TODO: read sort/showArchived from request.nextUrl.searchParams,
-  // call listTasks() from lib/tasks.js, and return it as JSON.
-  return NextResponse.json({ tasks: [] });
+  const params = request.nextUrl.searchParams;
+  const sortParam = params.get("sort");
+  const sort = VALID_SORTS.includes(sortParam) ? sortParam : "due_date";
+  const showArchived = params.get("showArchived") === "true";
+
+  const tasks = listTasks({ sort, showArchived });
+  return NextResponse.json({ tasks });
 }
 
 export async function POST(request) {
-  // TODO: read the task fields from the request body, call createTask()
-  // from lib/tasks.js, and return the created task.
-  return NextResponse.json(
-    { error: "Not implemented yet." },
-    { status: 501 }
-  );
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+
+  try {
+    const task = createTask({
+      title: body.title,
+      description: body.description,
+      dueDate: body.dueDate,
+      topic: body.topic,
+    });
+    return NextResponse.json({ task }, { status: 201 });
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 400 });
+  }
 }

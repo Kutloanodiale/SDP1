@@ -1,21 +1,37 @@
 import { NextResponse } from "next/server";
+import { getTask, updateTask } from "@/lib/tasks";
 
-// GET   /api/tasks/:id  -> fetch one task
-// PATCH /api/tasks/:id  -> update a task (edit fields, change status, archive)
 
 export async function GET(_request, { params }) {
-  // TODO: fetch a single task by params.id.
-  return NextResponse.json(
-    { error: "Not implemented yet." },
-    { status: 501 }
-  );
+  const task = getTask(params.id);
+  if (!task) {
+    return NextResponse.json({ error: "Task not found." }, { status: 404 });
+  }
+  return NextResponse.json({ task });
 }
 
 export async function PATCH(request, { params }) {
-  // TODO: read updated fields from the request body, call updateTask()
-  // from lib/tasks.js, and return the updated task.
-  return NextResponse.json(
-    { error: "Not implemented yet." },
-    { status: 501 }
-  );
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+
+  try {
+    const task = updateTask(params.id, {
+      title: body.title,
+      description: body.description,
+      dueDate: body.dueDate,
+      topic: body.topic,
+      status: body.status,
+      archived: body.archived,
+    });
+    if (!task) {
+      return NextResponse.json({ error: "Task not found." }, { status: 404 });
+    }
+    return NextResponse.json({ task });
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 400 });
+  }
 }
